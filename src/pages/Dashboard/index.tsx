@@ -1,57 +1,63 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight} from 'react-icons/fi'
 
 import logo from '../../assets/Logo.svg'
+import api from '../../services/api';
 import { Title, Form, Repositories } from './styles';
 
+interface Repository {
+    full_name: string;
+    description: string;
+    owner: {
+        login: string;
+        avatar_url: string;
+    }
+}
+
 const Dashboard: React.FC = () => {  
+    const [repositories, setRepositories] = useState<Repository[]>([]);
+    const [newRepo, setNewRepo] = useState('');
+
+    async function handleAddRepository (event: FormEvent<HTMLFormElement>): Promise<void> {
+        event.preventDefault();
+
+        const response = await api.get<Repository>(`/repos/${newRepo}`);
+
+        const repository = response.data; 
+
+        setRepositories([...repositories, repository]);
+        setNewRepo('');
+    }
+
     return (
         <>
             <img src={logo} alt='Github Explorer' />
             <Title>Explore repositórios no GitHub.</Title>
 
-            <Form>
-                <input placeholder="Digite o nome do repositório" />
+            <Form onSubmit={handleAddRepository}>
+                <input 
+                value={newRepo}
+                onChange={e => setNewRepo(e.target.value)}
+                placeholder="Digite o nome do repositório" 
+                />
                 <button type="submit">Pesquisar</button>
             </ Form>
 
             <Repositories>
-                <a href="/">
-                    <img 
-                        src="https://avatars1.githubusercontent.com/u/38812286?s=460&u=958ecb66379d41fd3fbbb8f2f411e73d3449db9e&v=4"
-                        alt="Lucas Soares"
-                    />
-                    <div>
-                        <strong>React-githubRepo</strong>
-                        <p>Aplicação React com API de repositórios do GitHub.</p>
-                    </div>
+                {repositories.map(repository => (
+                    <a key={repository.full_name} href="/">
+                        <img 
+                            src={repository.owner.avatar_url}
+                            alt="Lucas Soares"
+                        />
+                        <div>
+                            <strong>{repository.owner.login}</strong>
+                            <p>{repository.description}</p>
+                        </div>
 
-                    <FiChevronRight size={20} />
-                </a>
-                <a href="/">
-                    <img 
-                        src="https://avatars1.githubusercontent.com/u/38812286?s=460&u=958ecb66379d41fd3fbbb8f2f411e73d3449db9e&v=4"
-                        alt="Lucas Soares"
-                    />
-                    <div>
-                        <strong>React-githubRepo</strong>
-                        <p>Aplicação React com API de repositórios do GitHub.</p>
-                    </div>
-
-                    <FiChevronRight size={20} />
-                </a>
-                <a href="/">
-                    <img 
-                        src="https://avatars1.githubusercontent.com/u/38812286?s=460&u=958ecb66379d41fd3fbbb8f2f411e73d3449db9e&v=4"
-                        alt="Lucas Soares"
-                    />
-                    <div>
-                        <strong>React-githubRepo</strong>
-                        <p>Aplicação React com API de repositórios do GitHub.</p>
-                    </div>
-
-                    <FiChevronRight size={20} />
-                </a>
+                        <FiChevronRight size={20} />
+                    </a>
+                ))}
             </ Repositories>
         </>
     );
