@@ -4,7 +4,7 @@ Criação de uma aplicação web utilizando ReactJS.<br/>
 
 ---
 
-<img src="./src/assets/Application,png">
+<img src="./src/assets/Application.png">
 
 ### `yarn start`
 
